@@ -3,176 +3,911 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login / Register</title>
+    <title>FIR System - Login / Register</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --success-color: #2ecc71;
+        }
+        
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color)) fixed;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://images.unsplash.com/photo-1570044389283-6713aecaac91?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center;
+            background-size: cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+
+        .container {
+            padding: 40px 20px;
+            max-width: 100%;
+            width: 100%;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo h1 {
+            color: var(--light-color);
+            font-size: 2.5rem;
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .logo p {
+            color: var(--light-color);
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        nav {
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
+            margin-bottom: 20px;
+            width: 100%;
         }
-
+        
+        nav a {
+            padding: 10px 20px;
+            color: var(--light-color);
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0 10px;
+            border-radius: 30px;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        nav a i {
+            margin-right: 8px;
+        }
+        
+        nav a:hover, nav a.active {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
         .form-container {
             width: 100%;
-            max-width: 400px;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
             text-align: center;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            margin: 20px 0;
         }
-
+        
         .switch-buttons {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 1px solid var(--light-color);
         }
-
+        
         .switch-buttons button {
             flex: 1;
-            padding: 10px;
+            padding: 12px;
             font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
             border: none;
             cursor: pointer;
-            background-color: #007BFF;
+            background-color: #fff;
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .switch-buttons button.active {
+            background-color: var(--secondary-color);
             color: white;
+        }
+        
+        .switch-buttons button:hover:not(.active) {
+            background-color: #f0f0f0;
+        }
+        
+        form {
+            margin-top: 15px;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        
+        h2 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
             transition: 0.3s;
         }
-
-        .switch-buttons button.active {
-            background-color: #0056b3;
-        }
-
-        input, button {
-            margin: 10px 0;
-            padding: 10px;
-            font-size: 16px;
+        
+        input {
             width: 100%;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            padding: 12px 15px 12px 45px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            background-color: #fff;
+            transition: all 0.3s ease;
         }
-
-        button {
-            background-color: #007BFF;
+        
+        input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        input:focus + i {
+            color: var(--secondary-color);
+        }
+        
+        button[type="submit"] {
+            width: 100%;
+            padding: 14px;
+            margin-top: 20px;
+            background-color: var(--secondary-color);
             color: white;
             border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
             cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
         }
-
-        button:hover {
-            background-color: #0056b3;
+        
+        button[type="submit"]:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
         }
-
+        
+        button[type="submit"]:active {
+            transform: translateY(0);
+        }
+        
+        p {
+            margin-top: 20px;
+            color: #666;
+            text-align: center;
+        }
+        
+        a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        
+        a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+        
         .hidden {
             display: none;
         }
-
+        
         .error {
-            color: red;
+            color: var(--accent-color);
             font-size: 14px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            font-weight: 500;
+            display: block;
+            text-align: center;
+        }
+        
+        .success-message {
+            padding: 10px;
+            background-color: rgba(46, 204, 113, 0.2);
+            border-left: 4px solid var(--success-color);
+            color: #27ae60;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        form {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 500px) {
+            .form-container {
+                padding: 20px;
+                margin: 15px;
+                width: 95%;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 20px 10px;
+            }
+            
+            .switch-buttons button {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            nav {
+                flex-wrap: wrap;
+            }
+            
+            nav a {
+                padding: 8px 12px;
+                font-size: 13px;
+                margin: 5px;
+            }
+            
+            .logo h1 {
+                font-size: 1.8rem;
+            }
+            
+            .logo p {
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="form-container">
-        <div class="switch-buttons">
-            <button id="switchToOfficer" class="active">Officer</button>
-            <button id="switchToUser">User</button>
+    <div class="container">
+        <div class="logo">
+            <h1>FIR System</h1>
+            <p>Secure Blockchain-based First Information Reports</p>
         </div>
-
-        <form id="officerLoginForm">
-            <h2>Officer Login</h2>
-            <input type="text" id="officerLoginUsername" placeholder="Username" required>
-            <input type="password" id="officerLoginPassword" placeholder="Password" required>
-            <button type="submit">Login</button>
-            <p>Don't have an account? <a href="#" id="showOfficerRegisterForm">Register</a></p>
-        </form>
-
-        <form id="officerRegisterForm" class="hidden">
-            <h2>Officer Register</h2>
-            <input type="text" id="officerRegisterUsername" placeholder="Username" required>
-            <input type="email" id="officerRegisterEmail" placeholder="Email" required>
-            <input type="text" id="officerBadgeNumber" placeholder="Badge Number" required>
-            <input type="password" id="officerRegisterPassword" placeholder="Password" required>
-            <input type="password" id="officerConfirmPassword" placeholder="Confirm Password" required>
-            <button type="submit">Register</button>
-            <p>Already have an account? <a href="#" id="showOfficerLoginForm">Login</a></p>
-            <div class="error" id="officerError"></div>
-        </form>
-
-        <form id="userLoginForm" class="hidden">
-            <h2>User Login</h2>
-            <input type="text" id="userLoginUsername" placeholder="Username" required>
-            <input type="password" id="userLoginPassword" placeholder="Password" required>
-            <button type="submit">Login</button>
-            <p>Don't have an account? <a href="#" id="showUserRegisterForm">Register</a></p>
-        </form>
-
-        <form id="userRegisterForm" class="hidden">
-            <h2>User Register</h2>
-            <input type="text" id="userRegisterUsername" placeholder="Username" required>
-            <input type="email" id="userRegisterEmail" placeholder="Email" required>
-            <input type="text" id="userPhoneNumber" placeholder="Phone Number" required>
-            <input type="password" id="userRegisterPassword" placeholder="Password" required>
-            <input type="password" id="userConfirmPassword" placeholder="Confirm Password" required>
-            <button type="submit">Register</button>
-            <p>Already have an account? <a href="#" id="showUserLoginForm">Login</a></p>
-            <div class="error" id="userError"></div>
-        </form>
+        
+        <nav>
+            <a href="map.html"><i class="fas fa-map-marked-alt"></i> View Map</a>
+            <a href="search.html"><i class="fas fa-search"></i> Search FIRs</a>
+            <a href="officer.html" class="active"><i class="fas fa-user-shield"></i> Login</a>
+        </nav>
+        
+        <div class="form-container">
+            <div class="switch-buttons">
+                <button id="switchToOfficer" class="active">Officer</button>
+                <button id="switchToUser">User</button>
+            </div>
+            
+            <div class="success-message" id="successMessage"></div>
+    
+            <form id="officerLoginForm">
+                <h2>Officer Login</h2>
+                
+                <div class="input-group">
+                    <input type="text" id="officerLoginEmail" placeholder="Email" required>
+                    <i class="fas fa-user"></i>
+                </div>
+                
+                <div class="input-group">
+                    <input type="password" id="officerLoginPassword" placeholder="Password" required>
+                    <i class="fas fa-lock"></i>
+                </div>
+                
+                <button type="submit">Login</button>
+                <p>Don't have an account? <a href="#" id="showOfficerRegisterForm">Register</a></p>
+            </form>
+    
+            <form id="officerRegisterForm" class="hidden">
+                <h2>Officer Registration</h2>
+                
+                <div class="input-group">
+                    <input type="text" id="officerRegisterUsername" placeholder="Username" required>
+                    <i class="fas fa-user"></i>
+                </div>
+                
+                <div class="input-group">
+                    <input type="email" id="officerRegisterEmail" placeholder="Email" required>
+                    <i class="fas fa-envelope"></i>
+                </div>
+                
+                <div class="input-group">
+                    <input type="text" id="officerBadgeNumber" placeholder="Badge Number" required>
+                    <i class="fas fa-id-badge"></i>
+                </div>
+                
+                <div class="input-group">
+                    <input type="password" id="officerRegisterPassword" placeholder="Password" required>
+                    <i class="fas fa-lock"></i>
+                </div>
+                
+                <div class="input-group">
+                    <input type="password" id="officerConfirmPassword" placeholder="Confirm Password" required>
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                
+                <div class="error" id="officerError"></div>
+                
+                <button type="submit">Register</button>
+                <p>Already have an account? <a href="#" id="showOfficerLoginForm">Login</a></p>
+            </form>
+    
+            <form id="userLoginForm" class="hidden">
+                <h2>User Login</h2>
+                
+                <div class="input-group">
+                    <input type="text" id="userLoginEmail" placeholder="Email" required>
+                    <i class="fas fa-user"></i>
+                </div>
+                
+                <div class="input-group">
+                    <input type="password" id="userLoginPassword" placeholder="Password" required>
+                    <i class="fas fa-lock"></i>
+                </div>
+                
+                <button type="submit">Login</button>
+                <p>Don't have an account? <a href="#" id="showUserRegisterForm">Register</a></p>
+            </form>
+    
+            <form id="userRegisterForm" class="hidden">
+                <h2>User Registration</h2>
+                
+                <div class="input-group">
+                    <input type="text" id="userRegisterUsername" placeholder="Username" required>
+                    <i class="fas fa-user"></i>
+                </div>
+                
+                <div class="input-group">
+                    <input type="email" id="userRegisterEmail" placeholder="Email" required>
+                    <i class="fas fa-envelope"></i>
+                </div>
+                
+                <div class="input-group">
+                    <input type="text" id="userPhoneNumber" placeholder="Phone Number" required>
+                    <i class="fas fa-phone"></i>
+                </div>
+                
+                <div class="input-group">
+                    <input type="password" id="userRegisterPassword" placeholder="Password" required>
+                    <i class="fas fa-lock"></i>
+                </div>
+                
+                <div class="input-group">
+                    <input type="password" id="userConfirmPassword" placeholder="Confirm Password" required>
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                
+                <div class="error" id="userError"></div>
+                
+                <button type="submit">Register</button>
+                <p>Already have an account? <a href="#" id="showUserLoginForm">Login</a></p>
+            </form>
+        </div>
     </div>
 
     <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDVdsoLaGkCQvVvH8x4TYa1g_XMuXYW0K8",
+            authDomain: "fir-blockchain-system.firebaseapp.com",
+            projectId: "fir-blockchain-system",
+            storageBucket: "fir-blockchain-system.appspot.com",
+            messagingSenderId: "876211717281",
+            appId: "1:876211717281:web:51bc3f0d936a4c6f3c3cc9"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
         document.addEventListener('DOMContentLoaded', function() {
-            const users = JSON.parse(localStorage.getItem('users')) || { officers: [], normalUsers: [] };
-
-            function registerUser(role, username, password, confirmPassword, errorElement) {
+            // Check if the user is already logged in
+            auth.onAuthStateChanged(function(user) {
+                if (user) {
+                    // User is logged in, get their profile from Firestore
+                    db.collection('users').doc(user.uid).get()
+                        .then((doc) => {
+                            if (doc.exists) {
+                                const userData = doc.data();
+                                
+                                // Set login status in localStorage for compatibility with existing code
+                                if (userData.role === "officer") {
+                                    localStorage.setItem("isOfficerLoggedIn", "true");
+                                    localStorage.setItem("userRole", "officer");
+                                } else {
+                                    localStorage.setItem("isUserLoggedIn", "true");
+                                    localStorage.setItem("userRole", "user");
+                                }
+                                localStorage.setItem("currentUser", userData.username);
+                                localStorage.setItem("loginTimestamp", Date.now());
+                                
+                                // Display welcome message
+                                showLoggedInUI(userData.username, userData.role);
+                            }
+                        });
+                }
+            });
+            
+            // Form switching functionality
+            document.getElementById('switchToOfficer').addEventListener('click', function() {
+                document.getElementById('switchToOfficer').classList.add('active');
+                document.getElementById('switchToUser').classList.remove('active');
+                document.getElementById('officerLoginForm').classList.remove('hidden');
+                document.getElementById('userLoginForm').classList.add('hidden');
+                document.getElementById('officerRegisterForm').classList.add('hidden');
+                document.getElementById('userRegisterForm').classList.add('hidden');
+            });
+            
+            document.getElementById('switchToUser').addEventListener('click', function() {
+                document.getElementById('switchToUser').classList.add('active');
+                document.getElementById('switchToOfficer').classList.remove('active');
+                document.getElementById('userLoginForm').classList.remove('hidden');
+                document.getElementById('officerLoginForm').classList.add('hidden');
+                document.getElementById('officerRegisterForm').classList.add('hidden');
+                document.getElementById('userRegisterForm').classList.add('hidden');
+            });
+            
+            // Toggle between login and register forms
+            document.getElementById('showOfficerRegisterForm').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('officerLoginForm').classList.add('hidden');
+                document.getElementById('officerRegisterForm').classList.remove('hidden');
+            });
+            
+            document.getElementById('showOfficerLoginForm').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('officerRegisterForm').classList.add('hidden');
+                document.getElementById('officerLoginForm').classList.remove('hidden');
+            });
+            
+            document.getElementById('showUserRegisterForm').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('userLoginForm').classList.add('hidden');
+                document.getElementById('userRegisterForm').classList.remove('hidden');
+            });
+            
+            document.getElementById('showUserLoginForm').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('userRegisterForm').classList.add('hidden');
+                document.getElementById('userLoginForm').classList.remove('hidden');
+            });
+            
+            // Show success message
+            function showSuccessMessage(message) {
+                const successMessage = document.getElementById('successMessage');
+                successMessage.textContent = message;
+                successMessage.style.display = 'block';
+                
+                // Hide message after 3 seconds
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 3000);
+            }
+            
+            // Function to validate password strength
+            function validatePassword(password, errorElement) {
+                // Password strength validation
+                if (password.length < 8) {
+                    document.getElementById(errorElement).textContent = "Password must be at least 8 characters";
+                    return false;
+                }
+                
+                // Check for password complexity
+                const hasUpperCase = /[A-Z]/.test(password);
+                const hasLowerCase = /[a-z]/.test(password);
+                const hasNumbers = /\d/.test(password);
+                
+                if (!(hasUpperCase && hasLowerCase && hasNumbers)) {
+                    document.getElementById(errorElement).textContent = "Password must include uppercase, lowercase, and numbers";
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            // Function to validate email format
+            function validateEmail(email, errorElement) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    document.getElementById(errorElement).textContent = "Please enter a valid email address";
+                    return false;
+                }
+                return true;
+            }
+            
+            // Function to validate username format
+            function validateUsername(username, errorElement) {
+                if (!username.trim() || username.length < 4) {
+                    document.getElementById(errorElement).textContent = "Username must be at least 4 characters";
+                    return false;
+                }
+                
+                // Check if username contains spaces or special characters
+                if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+                    document.getElementById(errorElement).textContent = "Username can only contain letters, numbers, and underscores";
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            // Register user function
+            async function registerUser(role, username, email, additionalInfo, password, confirmPassword, errorElement) {
+                // Clear previous error messages
+                document.getElementById(errorElement).textContent = "";
+                
+                // Validate username format
+                if (!validateUsername(username, errorElement)) return false;
+                
+                // Validate passwords match
                 if (password !== confirmPassword) {
                     document.getElementById(errorElement).textContent = "Passwords do not match";
-                    return;
+                    return false;
                 }
-                if (users[role].some(user => user.username === username)) {
-                    document.getElementById(errorElement).textContent = "Username already exists";
-                    return;
+                
+                // Validate password strength
+                if (!validatePassword(password, errorElement)) return false;
+                
+                // Validate email
+                if (!validateEmail(email, errorElement)) return false;
+                
+                // Officer-specific validation
+                if (role === "officer") {
+                    // Badge number validation - must be alphanumeric and at least 4 characters
+                    if (!additionalInfo || additionalInfo.length < 4 || !/^[A-Z0-9]+$/.test(additionalInfo)) {
+                        document.getElementById(errorElement).textContent = "Badge number must be at least 4 alphanumeric characters (uppercase)";
+                        return false;
+                    }
+                    
+                    // Check if badge number already exists
+                    try {
+                        const badgeQuery = await db.collection('users')
+                            .where('role', '==', 'officer')
+                            .where('badgeNumber', '==', additionalInfo)
+                            .get();
+                            
+                        if (!badgeQuery.empty) {
+                            document.getElementById(errorElement).textContent = "Badge number already registered";
+                            return false;
+                        }
+                    } catch (error) {
+                        console.error("Error checking badge number:", error);
+                        document.getElementById(errorElement).textContent = "Error verifying badge number. Please try again.";
+                        return false;
+                    }
                 }
-                users[role].push({ username, password });
-                localStorage.setItem('users', JSON.stringify(users));
-                alert("Registration successful! Please login.");
-                window.location.reload();
+                
+                // Check if username already exists
+                try {
+                    const usernameQuery = await db.collection('users')
+                        .where('username', '==', username)
+                        .get();
+                        
+                    if (!usernameQuery.empty) {
+                        document.getElementById(errorElement).textContent = "Username already exists";
+                        return false;
+                    }
+                } catch (error) {
+                    console.error("Error checking username:", error);
+                    document.getElementById(errorElement).textContent = "Error verifying username. Please try again.";
+                    return false;
+                }
+                
+                // Create user in Firebase Authentication
+                try {
+                    // Create the user with email and password
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    
+                    // Add user information to Firestore
+                    const userData = {
+                        uid: user.uid,
+                        username: username,
+                        email: email,
+                        role: role === "officer" ? "officer" : "user",
+                        registrationDate: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    
+                    // Add role-specific information
+                    if (role === "officer") {
+                        userData.badgeNumber = additionalInfo;
+                    } else {
+                        userData.phoneNumber = additionalInfo;
+                    }
+                    
+                    // Store user data in Firestore
+                    await db.collection('users').doc(user.uid).set(userData);
+                    
+                    console.log("User registered successfully:", userData);
+                    return true;
+                } catch (error) {
+                    console.error("Error creating user:", error);
+                    document.getElementById(errorElement).textContent = error.message || "Error registering user. Please try again.";
+                    return false;
+                }
             }
-
-            document.getElementById('officerRegisterForm').addEventListener('submit', function(e) {
+            
+            // Officer registration form submit handler
+            document.getElementById('officerRegisterForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                registerUser("officers", document.getElementById('officerRegisterUsername').value, document.getElementById('officerRegisterPassword').value, document.getElementById('officerConfirmPassword').value, 'officerError');
+                const username = document.getElementById('officerRegisterUsername').value;
+                const email = document.getElementById('officerRegisterEmail').value;
+                const badgeNumber = document.getElementById('officerBadgeNumber').value;
+                const password = document.getElementById('officerRegisterPassword').value;
+                const confirmPassword = document.getElementById('officerConfirmPassword').value;
+                
+                if (await registerUser("officer", username, email, badgeNumber, password, confirmPassword, 'officerError')) {
+                    showSuccessMessage("Registration successful! Please login.");
+                    // Clear form and show login
+                    document.getElementById('officerRegisterForm').reset();
+                    setTimeout(() => {
+                        document.getElementById('officerRegisterForm').classList.add('hidden');
+                        document.getElementById('officerLoginForm').classList.remove('hidden');
+                    }, 1000);
+                }
             });
-
-            document.getElementById('userRegisterForm').addEventListener('submit', function(e) {
+            
+            // User registration form submit handler
+            document.getElementById('userRegisterForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                registerUser("normalUsers", document.getElementById('userRegisterUsername').value, document.getElementById('userRegisterPassword').value, document.getElementById('userConfirmPassword').value, 'userError');
+                const username = document.getElementById('userRegisterUsername').value;
+                const email = document.getElementById('userRegisterEmail').value;
+                const phoneNumber = document.getElementById('userPhoneNumber').value;
+                const password = document.getElementById('userRegisterPassword').value;
+                const confirmPassword = document.getElementById('userConfirmPassword').value;
+                
+                if (await registerUser("user", username, email, phoneNumber, password, confirmPassword, 'userError')) {
+                    showSuccessMessage("Registration successful! Please login.");
+                    // Clear form and show login
+                    document.getElementById('userRegisterForm').reset();
+                    setTimeout(() => {
+                        document.getElementById('userRegisterForm').classList.add('hidden');
+                        document.getElementById('userLoginForm').classList.remove('hidden');
+                    }, 1000);
+                }
             });
-
-            function loginUser(role, username, password) {
-                const usersList = users[role];
-                if (usersList.some(user => user.username === username && user.password === password)) {
-                    window.location.href = 'map.html';
-                } else {
-                    alert("Invalid credentials!");
+            
+            // Login function
+            async function loginUser(role, email, password) {
+                // Check for too many login attempts
+                const maxAttempts = 5;
+                const lockoutTime = 15 * 60 * 1000; // 15 minutes in milliseconds
+                
+                // Get login attempts from localStorage
+                let loginAttempts = parseInt(localStorage.getItem("loginAttempts") || "0");
+                let lastAttemptTime = parseInt(localStorage.getItem("lastAttemptTime") || "0");
+                const currentTime = Date.now();
+                
+                // Reset attempts if lockout period has passed
+                if (currentTime - lastAttemptTime > lockoutTime) {
+                    loginAttempts = 0;
+                }
+                
+                // Check if user is locked out
+                if (loginAttempts >= maxAttempts) {
+                    const remainingLockout = Math.ceil((lockoutTime - (currentTime - lastAttemptTime)) / 60000);
+                    alert(`Too many failed login attempts. Please try again in ${remainingLockout} minutes.`);
+                    return false;
+                }
+                
+                // Validate inputs
+                if (!email.trim() || !password.trim()) {
+                    alert("Please enter both email and password");
+                    return false;
+                }
+                
+                try {
+                    // Sign in with email and password
+                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    
+                    // Get user data from Firestore
+                    const userDoc = await db.collection('users').doc(user.uid).get();
+                    
+                    if (userDoc.exists) {
+                        const userData = userDoc.data();
+                        
+                        // Check if the user role matches the selected role
+                        if ((role === "officer" && userData.role !== "officer") || 
+                            (role === "user" && userData.role !== "user")) {
+                            // Reset login attempts on successful login
+                            localStorage.removeItem("loginAttempts");
+                            localStorage.removeItem("lastAttemptTime");
+                            
+                            // Sign out the user as they tried to login with wrong role
+                            await auth.signOut();
+                            alert("Invalid login credentials for selected role!");
+                            return false;
+                        }
+                        
+                        // Reset login attempts on successful login
+                        localStorage.removeItem("loginAttempts");
+                        localStorage.removeItem("lastAttemptTime");
+                        
+                        // Set login status in localStorage for compatibility with existing code
+                        if (userData.role === "officer") {
+                            localStorage.setItem("isOfficerLoggedIn", "true");
+                            localStorage.setItem("userRole", "officer");
+                        } else {
+                            localStorage.setItem("isUserLoggedIn", "true");
+                            localStorage.setItem("userRole", "user");
+                        }
+                        
+                        localStorage.setItem("currentUser", userData.username);
+                        localStorage.setItem("loginTimestamp", Date.now());
+                        
+                        // Show success message before redirect
+                        showSuccessMessage("Login successful! Redirecting to dashboard...");
+                        
+                        // Redirect to file FIR page for officers, map page for regular users
+                        setTimeout(() => {
+                            if (userData.role === "officer") {
+                                window.location.href = 'fir-form.html'; // Officers can file FIRs
+                            } else {
+                                window.location.href = 'map.html'; // Regular users go to map
+                            }
+                        }, 1000);
+                        
+                        return true;
+                    } else {
+                        // User document not found, this shouldn't happen normally
+                        console.error("User document not found in Firestore");
+                        alert("Account error. Please contact support.");
+                        await auth.signOut();
+                        return false;
+                    }
+                } catch (error) {
+                    console.error("Error signing in:", error);
+                    
+                    // Update login attempts
+                    loginAttempts++;
+                    localStorage.setItem("loginAttempts", loginAttempts.toString());
+                    localStorage.setItem("lastAttemptTime", currentTime.toString());
+                    
+                    alert(error.message || "Invalid login credentials!");
+                    return false;
                 }
             }
-
-            document.getElementById('officerLoginForm').addEventListener('submit', function(e) {
+            
+            // Officer login form submit handler
+            document.getElementById('officerLoginForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                loginUser("officers", document.getElementById('officerLoginUsername').value, document.getElementById('officerLoginPassword').value);
+                const email = document.getElementById('officerLoginEmail').value;
+                const password = document.getElementById('officerLoginPassword').value;
+                await loginUser("officer", email, password);
             });
-
-            document.getElementById('userLoginForm').addEventListener('submit', function(e) {
+            
+            // User login form submit handler
+            document.getElementById('userLoginForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                loginUser("normalUsers", document.getElementById('userLoginUsername').value, document.getElementById('userLoginPassword').value);
+                const email = document.getElementById('userLoginEmail').value;
+                const password = document.getElementById('userLoginPassword').value;
+                await loginUser("user", email, password);
             });
+            
+            // Function to show logged in UI
+            function showLoggedInUI(username, role) {
+                // If user is already logged in, show a welcome message instead of login forms
+                const formContainer = document.querySelector('.form-container');
+                if (formContainer) {
+                    formContainer.innerHTML = `
+                        <div class="already-logged">
+                            <div class="icon-container">
+                                <i class="fas fa-user-check" style="font-size: 4rem; color: var(--success-color); margin-bottom: 20px;"></i>
+                            </div>
+                            <h2>Welcome Back, ${username || 'User'}!</h2>
+                            <p style="margin: 15px 0;">You are already logged in as ${role === "officer" ? 'an officer' : 'a user'}.</p>
+                            <p style="margin-bottom: 25px;">You can now access all features of the FIR system.</p>
+                            <div style="display: flex; justify-content: center; gap: 15px;">
+                                ${role === "officer" ? 
+                                    `<a href="fir-form.html" class="form-button" style="text-decoration: none; padding: 12px 20px; background-color: var(--secondary-color); color: white; border-radius: 30px; font-weight: 600;">
+                                        <i class="fas fa-file-alt"></i> File FIR
+                                    </a>` : ''}
+                                <a href="map.html" class="form-button" style="text-decoration: none; padding: 12px 20px; background-color: var(--secondary-color); color: white; border-radius: 30px; font-weight: 600;">
+                                    <i class="fas fa-map-marked-alt"></i> View Map
+                                </a>
+                                <button onclick="logout()" class="form-button" style="padding: 12px 20px; background-color: var(--accent-color); color: white; border: none; border-radius: 30px; cursor: pointer; font-weight: 600;">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Update navigation - Replace login with logout
+                const loginLink = document.querySelector('nav a[href="officer.html"]');
+                if (loginLink) {
+                    loginLink.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+                    loginLink.href = "#";
+                    loginLink.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        logout();
+                    });
+                }
+            }
+            
+            // Add logout function
+            window.logout = async function() {
+                try {
+                    await auth.signOut();
+                    // Clear all login data from localStorage
+                    localStorage.removeItem("isOfficerLoggedIn");
+                    localStorage.removeItem("isUserLoggedIn");
+                    localStorage.removeItem("currentUser");
+                    localStorage.removeItem("userRole");
+                    localStorage.removeItem("loginTimestamp");
+                    localStorage.removeItem("loginAttempts");
+                    localStorage.removeItem("lastAttemptTime");
+                    // Reload page
+                    window.location.reload();
+                } catch (error) {
+                    console.error("Error signing out:", error);
+                    alert("Error signing out. Please try again.");
+                }
+            };
         });
     </script>
 </body>

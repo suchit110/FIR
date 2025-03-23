@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIR System - File Report</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDVdsoLaGkCQvVvH8x4TYa1g_XMuXYW0K8",
+            authDomain: "fir-blockchain-system.firebaseapp.com",
+            projectId: "fir-blockchain-system",
+            storageBucket: "fir-blockchain-system.appspot.com",
+            messagingSenderId: "876211717281",
+            appId: "1:876211717281:web:51bc3f0d936a4c6f3c3cc9"
+        };
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // Check if the user is logged in as an officer, if not, show access denied
+        document.addEventListener('DOMContentLoaded', function() {
+            const firForm = document.getElementById('firForm');
+            const accessDenied = document.getElementById('accessDenied');
+            
+            // Check Firebase authentication
+            auth.onAuthStateChanged(async function(user) {
+                if (user) {
+                    // User is authenticated, check their role in Firestore
+                    try {
+                        const userDoc = await db.collection('users').doc(user.uid).get();
+                        
+                        if (userDoc.exists && userDoc.data().role === 'officer') {
+                            // User is an officer, allow access
+                            if (accessDenied) accessDenied.style.display = 'none';
+                            if (firForm) firForm.style.display = 'block';
+                            
+                            // Set localStorage for compatibility with existing code
+                            localStorage.setItem('isOfficerLoggedIn', 'true');
+                            localStorage.setItem('userRole', 'officer');
+                            localStorage.setItem('currentUser', userDoc.data().username);
+                        } else {
+                            // User is authenticated but not an officer
+                            if (firForm) firForm.style.display = 'none';
+                            
+                            if (accessDenied) {
+                                accessDenied.innerHTML = `
+                                    <div class="icon-container">
+                                        <i class="fas fa-user-shield"></i>
+                                    </div>
+                                    <h3>Authentication Required</h3>
+                                    <p>This section is restricted to authorized police officers only.</p>
+                                    <p>Please <a href="officer.html">login as an officer</a> to continue.</p>
+                                    <p>You can also <a href="map.html">view the incident map</a> or <a href="search.html">search existing FIRs</a>.</p>
+                                `;
+                            }
+                        }
+                    } catch (error) {
+                        console.error("Error checking user role:", error);
+                        // Show error message
+                        if (firForm) firForm.style.display = 'none';
+                        if (accessDenied) {
+                            accessDenied.innerHTML = `
+                                <div class="icon-container">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <h3>Authentication Error</h3>
+                                <p>There was an error verifying your account. Please try again later.</p>
+                                <p>You can <a href="map.html">view the incident map</a> or <a href="search.html">search existing FIRs</a>.</p>
+                            `;
+                        }
+                    }
+                } else {
+                    // User is not logged in at all
+                    if (firForm) firForm.style.display = 'none';
+                    
+                    if (accessDenied) {
+                        accessDenied.innerHTML = `
+                            <div class="icon-container">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <h3>Login Required</h3>
+                            <p>Please <a href="officer.html">login as an officer</a> to continue.</p>
+                            <p>You can also <a href="map.html">view the incident map</a> or <a href="search.html">search existing FIRs</a>.</p>
+                        `;
+                    }
+                }
+            });
+        });
+    </script>
+    <!-- All the original index.html content here -->
+</head>
+<body>
+    <!-- All the original index.html body content here -->
+    <div id="accessDenied">
+        <div class="icon-container">
+            <i class="fas fa-user-shield"></i>
+        </div>
+        <h3>Authentication Required</h3>
+        <p>Please <a href="officer.html">login or register</a> to continue.</p>
+        <p>You can also <a href="map.html">view the incident map</a> or <a href="search.html">search existing FIRs</a>.</p>
+    </div>
+</body>
+</html> 

@@ -13,7 +13,7 @@ window.addEventListener('load', async () => {
             document.getElementById("loginStatus").innerText = "Not Logged in";
         }
 
-        const contractAddress = '0x7226072e9Fe77620E4765e3c9F8B7B6520340223';
+        const contractAddress = '0xf1bc050f0914fb50f3d0c479ea1f21f755bec50b';
         const abi = [ {
           "inputs": [
             {

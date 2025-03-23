@@ -3,42 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FIR Form</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <title>FIR System - Loading</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #ecf0f1;
+        }
+        
+        .loader {
+            text-align: center;
+        }
+        
+        .loader h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #3498db;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto 20px auto;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    <script>
+        // Redirect to map page after a short delay
+        window.onload = function() {
+            setTimeout(function() {
+                window.location.href = 'map.html';
+            }, 1000); // 1 second delay
+        };
+    </script>
 </head>
 <body>
-    <div class="form-container">
-        <h2>File FIR</h2>
-        <button id="connectWalletButton">Connect Wallet</button>
-
-        <form id="firForm">
-            <label for="firID">FIR ID:</label>
-            <input type="text" id="firID" required>
-
-            <label for="policeStation">Police Station:</label>
-            <input type="text" id="policeStation" required>
-
-            <label for="criminalDetails">Criminal Details:</label>
-            <input type="text" id="criminalDetails" required>
-
-            <label for="incidentLocation">Incident Location:</label>
-            <input type="text" id="incidentLocation" name="incidentLocation" required>
-
-            <label for="victimDetails">Victim Details:</label>
-            <input type="text" id="victimDetails" required>
-
-            <label for="officerDetails">Officer Details:</label>
-            <input type="text" id="officerDetails" required>
-
-            <button type="submit">Submit FIR</button>
-        </form>
+    <div class="loader">
+        <h1>FIR System</h1>
+        <div class="loading-spinner"></div>
+        <p>Loading FIR Map Interface...</p>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
-    <script src="app.js"></script>
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 </body>
 </html>
